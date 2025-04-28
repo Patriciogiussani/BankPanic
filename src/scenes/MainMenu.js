@@ -13,19 +13,13 @@ export default class MainMenu extends Phaser.Scene {
         // Fondo del menú
         this.add.image(1180, 720, 'fondo_menu').setOrigin(1);
         this.add.image(745, 520, 'titulo').setOrigin(1);
+        this.add.text(445, 500, 'PUSH OPTIONS BOTTOM', { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000' }).setOrigin(0.5);
 
         // 🎮 Crear input manager para capturar el joystick
         this.inputManager = new InputManager(this);
         this.inputManager.setup();
 
-        // Texto para indicar que hay que presionar Options
-        this.add.text(400, 600, 'PRESIONA OPTIONS PARA COMENZAR', {
-            fontSize: '24px',
-            color: '#ffffff',
-            backgroundColor: '#000000',
-            padding: { x: 20, y: 10 },
-            fontFamily: 'Arial',
-        }).setOrigin(0.5);
+        
     }
 
     update() {

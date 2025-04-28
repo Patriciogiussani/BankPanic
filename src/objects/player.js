@@ -44,18 +44,28 @@ export default class Player {
         this.score += puntos;
         this.scene.updateHUD(this.score, this.lives);
     }
-
     loseLife() {
         this.lives--;
         this.scene.updateHUD(this.score, this.lives);
     
+        const puertasEstado = this.scene.puertas.map(puerta => puerta.cobradoUnaVez); // <<< Agregar esta línea
+        
         if (this.lives > 0) {
-            this.scene.scene.start('LifeLost', { round: this.scene.scene.key === 'Nivel1' ? 1 : 2, lives: this.lives, score: this.score });
+            this.scene.scene.start('LifeLost', { 
+                round: this.scene.scene.key === 'Nivel1' ? 1 : 2,
+                lives: this.lives,
+                score: this.score,
+                puertasEstado: puertasEstado // <<< Pasarlo
+            });
         } else {
-            this.scene.scene.start('LifeLost', { round: this.scene.scene.key === 'Nivel1' ? 1 : 2, lives: this.lives, gameover: true });
+            this.scene.scene.start('LifeLost', { 
+                round: this.scene.scene.key === 'Nivel1' ? 1 : 2,
+                lives: this.lives,
+                gameover: true,
+                puertasEstado: puertasEstado // <<< Pasarlo
+            });
         }
     }
-
     
 
     loseAllLives() {

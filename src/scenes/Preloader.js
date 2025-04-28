@@ -18,6 +18,8 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('fondojuego', 'assets/fondojuego.png');
         this.load.image('valla', 'assets/valla.png');
         this.load.image('fondoround', 'assets/fondoround.png');
+        this.load.image('fondoover', 'assets/fondoover.png');
+        this.load.image('extra_time_panel', 'assets/extra_time_panel.png');
 
         // Spritesheets
         this.load.spritesheet('banquero', 'assets/banquero_spritesheet.png', { frameWidth: 165, frameHeight: 168 });

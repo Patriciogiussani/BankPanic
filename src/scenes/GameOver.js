@@ -10,12 +10,13 @@ export default class GameOver extends Phaser.Scene {
 
         this.scene.stop('HUDScene');
 
-        const video = this.add.video(400, 300, 'gameover_video').setScale(1.5); // ajustá el scale si hace falta
+        this.add.image(0, 0, 'fondoover').setOrigin(0).setScrollFactor(1).setScale;
 
-        video.play(true);
+        this.add.text(400, 250, 'GAME OVER', { fontFamily: '"Press Start 2P"', fontSize: '40px', color: '#000' }).setOrigin(0.5);
 
-        video.on('complete', () => {
-            this.scene.start('MainMenu'); // O donde quieras volver después del game over
+        this.time.delayedCall(3000, () => {
+            this.scene.start('MainMenu');
         });
+
     }
 }

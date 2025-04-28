@@ -94,34 +94,44 @@ export default class Door {
         if (!this.active) return;
         if (this.bomba) return;
         if (this.cobrada) return;
-
+    
         let tipo;
         if (this.scene.scene.key === 'Nivel1') {
-            const random = Phaser.Math.Between(0, 3);
-            if (random === 0) {
+            const random = Phaser.Math.Between(0, 9);
+            if (random === 4) {
                 tipo = 'clienta';
-            } else if (random <= 2) {
+            } else if (random <= 6) {
                 tipo = 'cliente';
             } else {
                 tipo = 'bandido';
             }
-        } else {
+        } else if (this.scene.scene.key === 'Nivel2') {
             tipo = Phaser.Math.Between(0, 1) === 0 ? 'cliente' : 'bandido';
-            if (this.scene.scene.key === 'Nivel2' && tipo === 'bandido' && Phaser.Math.Between(0, 1) === 0) {
+            if (tipo === 'bandido' && Phaser.Math.Between(0, 1) === 0) {
+                tipo = 'bandido2';
+            }
+        } else if (this.scene.scene.key === 'Nivel3') {
+            const random = Phaser.Math.Between(0, 3);
+            if (random === 0) {
+                tipo = 'clienta';
+            } else if (random === 1) {
+                tipo = 'cliente';
+            } else if (random === 2) {
+                tipo = 'bandido';
+            } else {
                 tipo = 'bandido2';
             }
         }
-
+    
         this.sprite.play('puerta_abrir');
         this.alerta.setVisible(true);
-
+    
         this.npc = new NPC(this.scene, this.x, this.y, tipo, this, this.scene.player);
-
+    
         if (this.scene.updatePuertaHUD && !this.cobradoUnaVez) {
             this.scene.updatePuertaHUD(this.index, 'npc');
         }
     }
-
     receiveShot() {
         if (this.npc) {
             this.npc.shotByPlayer();

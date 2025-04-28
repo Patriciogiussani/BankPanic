@@ -18,15 +18,15 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
         door.sprite.setTexture('puerta'); // Asegurarse que sigue usando 'puerta'
 door.sprite.setFrame(0); // Mostrar frame 0 (cerrada)
 
-        // Mostrar ícono de bomba en el HUD
-        if (scene.hudBombas && scene.hudBombas[door.index]) {
-            scene.hudBombas[door.index].setVisible(true);
-        }
+      // Mostrar ícono de bomba en el HUD
+if (scene.updatePuerta) {
+    scene.updatePuerta(door.index, 'bomba');
+}
 
         this.desactivada = false;
 
         // Timer de explosión
-        this.timer = scene.time.delayedCall(30000, () => {
+        this.timer = scene.time.delayedCall(45000, () => {
             if (!this.desactivada) {
                 this.explotar();
             }

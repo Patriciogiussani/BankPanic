@@ -10,6 +10,7 @@ import IntroAnimScene from './scenes/IntroAnimScene.js';
 import GameOver from './scenes/GameOver.js';
 import LifeLostScene from './scenes/LifeLostScene.js';
 import HUDScene from './scenes/HUDScene.js';
+import Nivelbonus from './scenes/Nivel3.js';
 
 // src/main.js
 
@@ -17,6 +18,7 @@ const config = {
     type: Phaser.AUTO,
     width: 800 , 
     height: 600,
+    zoom:1.5,
     parent: 'game-container',
     backgroundColor: '#000000',
     physics: {
@@ -25,7 +27,7 @@ const config = {
             debug: false,
         }
     },
-    scene: [Boot, Preloader, MainMenu, Nivel1, RoundStartScene, Nivel2, IntroAnimScene, GameOver, LifeLostScene, HUDScene],
+    scene: [Boot, Preloader, MainMenu, Nivel1, RoundStartScene, Nivel2, IntroAnimScene, GameOver, LifeLostScene, HUDScene, Nivelbonus],
 
     input: {
         gamepad: true // 👈 ESTO ES CLAVE

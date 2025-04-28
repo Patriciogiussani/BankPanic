@@ -20,6 +20,18 @@ export default class Nivel2 extends Phaser.Scene {
         // Fondo
         this.add.image(0, 0, 'fondojuego').setOrigin(0).setScrollFactor(1).setScale(fondoAncho / 800, 1);
 
+                // Agregar recuadro de extra time (parallax)
+this.extraTimePanel = this.add.image(0, 0, 'extra_time_panel')
+.setOrigin(0)
+.setScrollFactor(0) // Fijo en pantalla
+.setDepth(10); // Detrás de todo
+// Agregar barra roja de extra time
+this.extraTimeBar = this.add.rectangle(580, 583, 300, 20, 0xff0000)
+    .setOrigin(0.5)
+    .setScrollFactor(0) // Fijo en pantalla
+    .setDepth(11); // Detrás de todo
+    this.add.text(200, 575, 'EXTRA TIME', { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000255' }).setScrollFactor(0).setDepth(11);
+
         // 🚀 Lanzar HUD
         this.scene.launch('HUDScene');
         this.hudScene = this.scene.get('HUDScene');
@@ -39,7 +51,7 @@ export default class Nivel2 extends Phaser.Scene {
         }
 
         this.time.addEvent({
-            delay: 10000,
+            delay: 30000,
             loop: true,
             callback: () => {
                 const puertasDisponibles = this.puertas.filter(p => p.active && !p.npc);
@@ -53,10 +65,10 @@ export default class Nivel2 extends Phaser.Scene {
         this.player = new Player(this, this.scene.settings.data.lives || 3);
         this.player.score = this.scene.settings.data.score || 0;
 
-        this.valla = this.add.tileSprite(0, 337, fondoAncho, 100, 'valla')
+        this.valla = this.add.tileSprite(0, 370, fondoAncho, 100, 'valla')
             .setOrigin(0)
             .setScrollFactor(0.5)
-            .setScale(1.5)
+            .setScale(2.5)
             .setDepth(1);
 
         this.banquero = this.add.sprite(500, 550, 'banquero')
@@ -88,6 +100,10 @@ export default class Nivel2 extends Phaser.Scene {
         this.valla.tilePositionX = cam.scrollX * 0.5;
         const botones = this.inputManager.getBotonesDisparo();
         this.player.update(this.puertas, botones);
+
+        if (this.extraTimeBar && this.extraTimeBar.width > 0) {
+            this.extraTimeBar.width -= 0.1; // velocidad de reducción
+        }
     }
 
     updateHUD(score, lives) {
@@ -106,6 +122,10 @@ export default class Nivel2 extends Phaser.Scene {
         const todasCobradas = this.puertas.every(p => p.cobradoUnaVez === true);
         if (todasCobradas && !this.roundCompleted) {
             this.roundCompleted = true;
+            if (this.extraTimeBar) {
+                const puntosExtra = Math.floor(this.extraTimeBar.width) * 10; // Cada pixel 10 puntos
+                this.player.addScore(puntosExtra);
+            }
            // this.musica.stop(); // 🔇 Detener música
            this.scene.start('RoundStart', { round: 'win', lives: this.player.lives, score: this.player.score });
         }

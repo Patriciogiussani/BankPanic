@@ -36,7 +36,7 @@ export default class HUDScene extends Phaser.Scene {
 
         // --- FAIR abajo del reloj ---
         this.add.rectangle(400, 115, 100, 30, 0xf5deb3).setOrigin(0.5).setScrollFactor(0);
-        this.add.text(400, 115, 'FAIR', { fontFamily: '"Press Start 2P"', fontSize: '14px', color: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+        this.add.text(400, 115, 'BANK', { fontFamily: '"Press Start 2P"', fontSize: '14px', color: '#000000' }).setOrigin(0.5).setScrollFactor(0);
 
         // --- Puertas 1 a 6 (izquierda) y 7 a 12 (derecha) ---
         for (let i = 0; i < 12; i++) {
@@ -69,8 +69,12 @@ export default class HUDScene extends Phaser.Scene {
                 .setOrigin(0.5)
                 .setScrollFactor(0);
 
-            // Ícono (inicialmente invisible)
-            const icon = this.add.image(x, yBase - 30, 'icon_money')
+                const moneyIcon = this.add.image(x, yBase - 25, 'icon_money')
+                .setVisible(false)
+                .setScale(0.6)
+                .setScrollFactor(0);
+            
+            const bombIcon = this.add.image(x, yBase - 25, 'icon_bomb')
                 .setVisible(false)
                 .setScale(0.6)
                 .setScrollFactor(0);
@@ -82,7 +86,7 @@ export default class HUDScene extends Phaser.Scene {
                 color: '#ff0000' // rojo por defecto
             }).setOrigin(0.5).setScrollFactor(0);
 
-            this.puertaIndicators.push({ num, iconBox, icon, timerRects, timerIndex: 0, timerEvent: null });
+            this.puertaIndicators.push({ num, iconBox, moneyIcon, bombIcon, timerRects, timerIndex: 0, timerEvent: null });
         }
     }
 
@@ -104,9 +108,10 @@ export default class HUDScene extends Phaser.Scene {
     updatePuerta(index, estado) {
         const puerta = this.puertaIndicators[index];
         if (!puerta) return;
-
-        puerta.icon.setVisible(false);
-
+    
+        puerta.moneyIcon.setVisible(false);
+        puerta.bombIcon.setVisible(false);
+    
         if (estado === 'normal') {
             puerta.iconBox.setFillStyle(0xffffff);
         } else if (estado === 'alerta') {
@@ -116,13 +121,11 @@ export default class HUDScene extends Phaser.Scene {
             puerta.iconBox.setFillStyle(0xffffff);
             this.stopTimerForDoor(index);
         } else if (estado === 'cobrado') {
-            puerta.icon.setTexture('icon_money');
-            puerta.icon.setVisible(true);
+            puerta.moneyIcon.setVisible(true); // <<< MOSTRAR DINERO
             this.stopTimerForDoor(index);
         } else if (estado === 'bomba') {
-            puerta.icon.setTexture('icon_bomb');
-            puerta.icon.setVisible(true);
-            this.stopTimerForDoor(index);
+            puerta.bombIcon.setVisible(true); // <<< MOSTRAR BOMBA
+            // NO apagar el moneyIcon si estaba antes
         }
     }
 
@@ -177,4 +180,6 @@ export default class HUDScene extends Phaser.Scene {
     setPuertas(puertas) {
         this.puertas = puertas;
     }
+
+    
 }

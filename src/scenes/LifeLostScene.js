@@ -1,3 +1,4 @@
+// src/scenes/LifeLostScene.js
 import Phaser from 'phaser';
 
 export default class LifeLostScene extends Phaser.Scene {
@@ -6,15 +7,10 @@ export default class LifeLostScene extends Phaser.Scene {
     }
 
     create(data) {
-
         this.scene.launch('HUDScene');
 
         this.add.image(0, 0, 'fondojuego').setOrigin(0).setScrollFactor(1).setScale;
         this.player = this.add.sprite(400, 320, 'player').setScale(0.8).setFrame(0);
-        
-          // 🎵 Reproducir música de life lost
-   // this.musica = this.sound.add('musica_life_lost', { loop: false });
-   // this.musica.play();
 
         this.time.delayedCall(300, () => {
             this.player.setFrame(2); // Impactado
@@ -27,11 +23,17 @@ export default class LifeLostScene extends Phaser.Scene {
         });
 
         this.time.delayedCall(2000, () => {
-          //  this.musica.stop(); // 🔇 Detener música al cambiar de escena
             if (data.gameover) {
+                // <<< Si es Game Over, ir a GameOver
                 this.scene.start('GameOver');
             } else {
-                this.scene.start('RoundStart', { round: data.round, lives: data.lives });
+                // <<< Si no, seguir a RoundStart y pasar todo
+                this.scene.start('RoundStart', {
+                    round: data.round,
+                    lives: data.lives,
+                    score: data.score,
+                    puertasEstado: data.puertasEstado
+                });
             }
         });
     }

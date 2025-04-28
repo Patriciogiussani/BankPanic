@@ -1,66 +1,59 @@
-// src/scenes/Nivel1.js
 import Door from '../objects/doors.js';
 import Player from '../objects/player.js';
+import Bomb from '../objects/bomb.js';
 import { InputManager } from '../scenes/inputManager.js';
 
-export default class Nivel1 extends Phaser.Scene {
+export default class Nivelbonus extends Phaser.Scene {
     constructor() {
-        super('Nivel1');
+        super('Nivel3');
     }
 
     create(data) {
         const fondoAncho = 3200;
+        this.round = data.round || 3;
         this.roundCompleted = false;
 
         // Fondo
         this.add.image(0, 0, 'fondojuego').setOrigin(0).setScrollFactor(1).setScale(fondoAncho / 800, 1);
 
-        // Agregar recuadro de extra time (parallax)
-this.extraTimePanel = this.add.image(0, 0, 'extra_time_panel')
-.setOrigin(0)
-.setScrollFactor(0) // Fijo en pantalla
-.setDepth(10); // Detrás de todo
-// Agregar barra roja de extra time
-this.extraTimeBar = this.add.rectangle(580, 583, 300, 20, 0xff0000)
-    .setOrigin(0.5)
-    .setScrollFactor(0) // Fijo en pantalla
-    .setDepth(11); // Detrás de todo
-    this.add.text(200, 575, 'EXTRA TIME', { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000255' }).setScrollFactor(0).setDepth(11);
-    
-
-        // Lanzar HUD
+        // HUD
         this.scene.launch('HUDScene');
         this.hudScene = this.scene.get('HUDScene');
 
-        this.cameras.main.setBounds(0, 0, fondoAncho, 600);
-        this.physics.world.setBounds(0, 0, fondoAncho, 600);
-
-        // Recibir estado de puertas cobradas si viene
-        const puertasEstado = data.puertasEstado || [];
+        this.cameras.main.setBounds(0, 0, fondoAncho, 540);
+        this.physics.world.setBounds(0, 0, fondoAncho, 540);
 
         // Puertas
         this.puertas = [];
         this.scene.get('HUDScene').setPuertas(this.puertas);
         for (let i = 0; i < 12; i++) {
-            const x = 120 + i * 250;
+            const x = 160 + i * 320;
             const puerta = new Door(this, x, 300, i, null);
             puerta.setHUD(this.hudScene);
             puerta.setActive(true);
-
-            // Marcar como cobrada si ya estaba cobrada antes
-            if (puertasEstado[i]) {
-                puerta.cobradoUnaVez = true;
-                this.updatePuertaHUD(i, 'cobrado');
-            }
-
             this.puertas.push(puerta);
         }
 
+        // HUD
+this.scene.launch('HUDScene');
+this.hudScene = this.scene.get('HUDScene');
+this.hudScene.setPuertas(this.puertas);
+
         this.player = new Player(this, data.lives || 3);
-        if (data.score !== undefined) {
-            this.player.score = data.score;
-            this.updateHUD(this.player.score, this.player.lives);
-        }
+        this.player.score = data.score || 0;
+
+        // Bombas
+        this.time.addEvent({
+            delay: Math.max(8000 - (this.round - 3) * 500, 3000),
+            loop: true,
+            callback: () => {
+                const puertasDisponibles = this.puertas.filter(p => p.active && !p.npc && !p.bomba);
+                if (puertasDisponibles.length > 0) {
+                    const puertaAleatoria = Phaser.Utils.Array.GetRandom(puertasDisponibles);
+                    new Bomb(this, puertaAleatoria);
+                }
+            }
+        });
 
         this.valla = this.add.tileSprite(0, 370, fondoAncho, 100, 'valla')
             .setOrigin(0)
@@ -68,7 +61,7 @@ this.extraTimeBar = this.add.rectangle(580, 583, 300, 20, 0xff0000)
             .setScale(2.5)
             .setDepth(1);
 
-        this.banquero = this.add.sprite(350, 550, 'banquero')
+        this.banquero = this.add.sprite(480, 510, 'banquero')
             .setOrigin(0.5, 0.8)
             .setScale(0.8)
             .setScrollFactor(0);
@@ -97,10 +90,6 @@ this.extraTimeBar = this.add.rectangle(580, 583, 300, 20, 0xff0000)
         this.valla.tilePositionX = cam.scrollX * 0.5;
         const botones = this.inputManager.getBotonesDisparo();
         this.player.update(this.puertas, botones);
-
-        if (this.extraTimeBar && this.extraTimeBar.width > 0) {
-            this.extraTimeBar.width -= 0.1; // velocidad de reducción
-        }
     }
 
     updateHUD(score, lives) {
@@ -119,11 +108,7 @@ this.extraTimeBar = this.add.rectangle(580, 583, 300, 20, 0xff0000)
         const todasCobradas = this.puertas.every(p => p.cobradoUnaVez === true);
         if (todasCobradas && !this.roundCompleted) {
             this.roundCompleted = true;
-            if (this.extraTimeBar) {
-                const puntosExtra = Math.floor(this.extraTimeBar.width) * 10; // Cada pixel 10 puntos
-                this.player.addScore(puntosExtra);
-            }
-            this.scene.start('RoundStart', { round: 2, lives: this.player.lives, score: this.player.score });
+            this.scene.start('RoundStart', { round: this.round + 1, lives: this.player.lives, score: this.player.score });
         }
     }
 }

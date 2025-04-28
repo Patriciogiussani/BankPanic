@@ -20,7 +20,7 @@ export default class IntroAnimScene extends Phaser.Scene {
 
         this.time.delayedCall(500, () => {
             this.player.setFrame(1); // Disparo
-            this.add.sprite(this.player.x - 50, this.player.y - 10, 'disparo').play('disparo_anim');
+            this.add.sprite(this.player.x - 16, this.player.y - 10, 'disparo').play('disparo_anim');
         });
 
         this.time.delayedCall(1500, () => {
