@@ -17,6 +17,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('fondo_menu', 'assets/fondo_menu.png');
         this.load.image('fondojuego', 'assets/fondojuego.png');
         this.load.image('valla', 'assets/valla.png');
+        this.load.image('fondoround', 'assets/fondoround.png');
 
         // Spritesheets
         this.load.spritesheet('banquero', 'assets/banquero_spritesheet.png', { frameWidth: 165, frameHeight: 168 });
@@ -47,6 +48,14 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('clock', 'assets/clock.png');
 
         this.load.image('icon_bomb', 'assets/icono_bomba.png');
+
+        // 🔥 Carga de sonidos
+//this.load.audio('musica_intro', '/assets/musica_intro.mp3');
+//this.load.audio('musica_life_lost', '/assets/musica_life_lost.mp3');
+//this.load.audio('musica_nivel1', '/assets/musica_nivel1.mp3');
+//this.load.audio('musica_nivel2', '/assets/musica_nivel2.mp3');
+//this.load.audio('sonido_disparo', '/assets/sonido_disparo.mp3');
+//this.load.audio('sonido_hit', '/assets/sonido_hit.mp3');
     }
 
     create() {
@@ -129,7 +138,7 @@ export default class Preloader extends Phaser.Scene {
             hideOnComplete: true
         });
 
-        this.scene.start('MainMenu');
+     
 
         this.anims.create({
             key: 'bomba_explosion',
@@ -142,7 +151,7 @@ export default class Preloader extends Phaser.Scene {
          this.anims.create({
             key: 'puerta_abrir',
             frames: this.anims.generateFrameNumbers('puerta', { start: 0, end: 2 }),
-            frameRate: 5,
+            frameRate: 35,
             hideOnComplete: false
         });
 
@@ -152,6 +161,8 @@ export default class Preloader extends Phaser.Scene {
             frameRate: 35,
             hideOnComplete: false
         });
+
+        this.scene.start('MainMenu');
 
         
     }

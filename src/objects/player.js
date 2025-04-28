@@ -33,6 +33,8 @@ export default class Player {
             puerta.receiveShot();
         }
 
+        //this.scene.sound.play('sonido_disparo'); // 🔫 Reproducir sonido disparo
+
         this.shotImage.setPosition(puerta.x, puerta.y - 40);
         this.shotImage.setVisible(true);
         this.shotImage.play('disparo_anim');
@@ -48,7 +50,7 @@ export default class Player {
         this.scene.updateHUD(this.score, this.lives);
     
         if (this.lives > 0) {
-            this.scene.scene.start('LifeLost', { round: this.scene.scene.key === 'Nivel1' ? 1 : 2, lives: this.lives });
+            this.scene.scene.start('LifeLost', { round: this.scene.scene.key === 'Nivel1' ? 1 : 2, lives: this.lives, score: this.score });
         } else {
             this.scene.scene.start('LifeLost', { round: this.scene.scene.key === 'Nivel1' ? 1 : 2, lives: this.lives, gameover: true });
         }

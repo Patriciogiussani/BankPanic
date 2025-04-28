@@ -40,12 +40,14 @@ export default class NPC extends Phaser.GameObjects.Sprite {
     }
 
     startBanditTimer() {
-        this.timer = this.scene.time.delayedCall(3000, () => {
+        const tiempo = this.scene.scene.key === 'Nivel1' ? 3000 : 2000;
+        this.timer = this.scene.time.delayedCall(tiempo, () => {
             if (!this.alreadyShot) {
                 this.playShootAnimation();
             }
         });
     }
+    
 
     startClientTimer() {
         this.timer = this.scene.time.delayedCall(2000, () => {
@@ -79,17 +81,21 @@ export default class NPC extends Phaser.GameObjects.Sprite {
     shotByPlayer() {
         if (this.alreadyShot) return;
         this.health--;
-
+    
         if (this.health > 0) {
             if (this.type === 'bandido2') {
                 this.play('bandido2_hit');
             }
             return;
         }
-
+    
         this.alreadyShot = true;
         if (this.timer) this.timer.remove();
-
+    
+        if (this.type === 'bandido' || this.type === 'bandido2') {
+       //     this.scene.sound.play('sonido_hit'); // 💥 Sonido de impacto en bandido
+        }
+    
         if (this.type === 'bandido') {
             this.play('bandido_die');
             this.once('animationcomplete', () => this.closeDoor());
@@ -100,7 +106,7 @@ export default class NPC extends Phaser.GameObjects.Sprite {
             if (this.scene.player) this.scene.player.loseLife(true);
             this.play(this.type === 'cliente' ? 'cliente_die' : 'clienta_die');
             this.scene.scene.pause();
-
+    
             this.scene.time.delayedCall(3000, () => {
                 this.scene.scene.start('RoundStart', {
                     round: this.scene.scene.key === 'Nivel1' ? 1 : 2,

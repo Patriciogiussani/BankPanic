@@ -13,6 +13,10 @@ export default class Nivel2 extends Phaser.Scene {
         const fondoAncho = 3200;
         this.roundCompleted = false;
 
+         // 🎵 Música de fondo nivel 2
+   // this.musica = this.sound.add('musica_nivel2', { loop: true });
+    //this.musica.play();
+
         // Fondo
         this.add.image(0, 0, 'fondojuego').setOrigin(0).setScrollFactor(1).setScale(fondoAncho / 800, 1);
 
@@ -25,6 +29,7 @@ export default class Nivel2 extends Phaser.Scene {
 
         // Puertas
         this.puertas = [];
+        this.scene.get('HUDScene').setPuertas(this.puertas);
         for (let i = 0; i < 12; i++) {
             const x = 120 + i * 250;
             const puerta = new Door(this, x, 300, i, null);
@@ -98,10 +103,11 @@ export default class Nivel2 extends Phaser.Scene {
     }
 
     verificarFinDeRonda() {
-        const todasCobradas = this.puertas.every(p => p.cobrada === true);
+        const todasCobradas = this.puertas.every(p => p.cobradoUnaVez === true);
         if (todasCobradas && !this.roundCompleted) {
             this.roundCompleted = true;
-            this.scene.start('Gameover', { score: this.player.score });
+           // this.musica.stop(); // 🔇 Detener música
+           this.scene.start('RoundStart', { round: 'win', lives: this.player.lives, score: this.player.score });
         }
     }
     

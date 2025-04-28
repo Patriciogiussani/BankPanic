@@ -11,43 +11,83 @@ export default class HUDScene extends Phaser.Scene {
         this.score = 0;
         this.lives = 3;
         this.highScore = 70000;
+        this.timers = [];
 
-        // --- 1UP y High Score ---
-        this.add.text(60, 10, '1UP', { fontFamily: 'PixelFont', fontSize: '16px', color: '#ffffff' }).setScrollFactor(0);
-        this.scoreText = this.add.text(60, 30, '000000', { fontFamily: 'PixelFont', fontSize: '16px', color: '#ffffff' }).setScrollFactor(0);
+        // Para recibir puertas visibles
+        this.puertas = [];
 
-        this.add.text(400, 10, 'HIGH SCORE', { fontFamily: 'PixelFont', fontSize: '16px', color: '#ffffff' }).setOrigin(0.5, 0).setScrollFactor(0);
-        this.highScoreText = this.add.text(400, 30, this.highScore.toString().padStart(6, '0'), { fontFamily: 'PixelFont', fontSize: '16px', color: '#ffffff' }).setOrigin(0.5, 0).setScrollFactor(0);
+        // --- Rectángulo beige de 1UP ---
+        this.add.rectangle(78, 25, 80, 30, 0xf5deb3).setOrigin(0.5).setScrollFactor(0);
+        this.add.rectangle(243, 25, 186, 30, 0xf5deb3).setOrigin(0.5).setScrollFactor(0);
+        this.add.text(47, 18, '1UP', { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000000' }).setScrollFactor(0);
+        this.scoreText = this.add.text(245, 18, '000000', { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000000' }).setOrigin(0.5, 0).setScrollFactor(0);
 
-        // --- Reloj como imagen fija ---
-        this.clock = this.add.image(400, 80, 'clock')
+        // --- Rectángulo beige de TOP ---
+        this.add.rectangle(667, 25, 186, 30, 0xf5deb3).setOrigin(0.5).setScrollFactor(0);
+        this.add.rectangle(503, 25, 78, 30, 0xf5deb3).setOrigin(0.5).setScrollFactor(0);
+        this.add.text(474, 18, 'TOP', { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000000' }).setScrollFactor(0);
+        this.highScoreText = this.add.text(680, 18, this.highScore.toString().padStart(6, '0'), { fontFamily: '"Press Start 2P"', fontSize: '20px', color: '#000000' }).setOrigin(0.5, 0).setScrollFactor(0);
+
+        // --- Reloj en el medio ---
+        this.clock = this.add.image(400, 50, 'clock')
             .setOrigin(0.5)
             .setScale(1)
             .setScrollFactor(0);
 
-        // --- Rectángulos + Números + Íconos arriba ---
-        for (let i = 0; i < 12; i++) {
-            const x = 100 + i * 50;
-            const y = 140;
+        // --- FAIR abajo del reloj ---
+        this.add.rectangle(400, 115, 100, 30, 0xf5deb3).setOrigin(0.5).setScrollFactor(0);
+        this.add.text(400, 115, 'FAIR', { fontFamily: '"Press Start 2P"', fontSize: '14px', color: '#000000' }).setOrigin(0.5).setScrollFactor(0);
 
-            const box = this.add.rectangle(x, y, 32, 32, 0xffffff)
+        // --- Puertas 1 a 6 (izquierda) y 7 a 12 (derecha) ---
+        for (let i = 0; i < 12; i++) {
+            const lado = (i < 6) ? -1 : 1; // -1 izquierda, 1 derecha
+            const idx = (i < 6) ? i : i - 6; // índice de 0 a 5 en cada lado
+        
+            const baseX = 350;
+            const espacioX = 55;
+            const yBase = 120;
+        
+            let x;
+            if (lado === -1) {
+                x = 400 - (baseX - idx * espacioX); // IZQUIERDA: hacia la izquierda
+            } else {
+                x = 125 + (baseX + idx * espacioX); // DERECHA: hacia la derecha
+            }
+
+            // 5 rectángulos amarillos (timer visual)
+            const timerRects = [];
+            // CORRECTO: de arriba hacia abajo
+             for (let j = 0; j < 5; j++) {
+             const rect = this.add.rectangle(x, yBase - 75 + (j * 8), 20, 6, 0xffff00)
+             .setOrigin(0.5)
+             .setScrollFactor(0);
+             timerRects.push(rect);
+              }
+
+            // Cuadrado blanco (ícono money o bomba)
+            const iconBox = this.add.rectangle(x, yBase - 25, 24, 24, 0xffffff)
                 .setOrigin(0.5)
-                .setStrokeStyle(2, 0xffffff)
                 .setScrollFactor(0);
 
-            const num = this.add.text(x, y, (i + 1).toString(), {
-                fontFamily: 'PixelFont',
-                fontSize: '16px',
-                color: '#000000'
-            }).setOrigin(0.5).setScrollFactor(0);
-
-            const icon = this.add.image(x, y - 25, 'icon_money')
+            // Ícono (inicialmente invisible)
+            const icon = this.add.image(x, yBase - 30, 'icon_money')
                 .setVisible(false)
                 .setScale(0.6)
                 .setScrollFactor(0);
 
-            this.puertaIndicators.push({ box, num, icon, state: 'normal' });
+            // Número de puerta
+            const num = this.add.text(x, yBase, (i + 1).toString(), {
+                fontFamily: '"Press Start 2P"',
+                fontSize: '16px',
+                color: '#ff0000' // rojo por defecto
+            }).setOrigin(0.5).setScrollFactor(0);
+
+            this.puertaIndicators.push({ num, iconBox, icon, timerRects, timerIndex: 0, timerEvent: null });
         }
+    }
+
+    update(time, delta) {
+        this.updatePuertasVisibles();
     }
 
     updateHUD(score, lives) {
@@ -68,24 +108,73 @@ export default class HUDScene extends Phaser.Scene {
         puerta.icon.setVisible(false);
 
         if (estado === 'normal') {
-            puerta.box.setFillStyle(0xffffff);
-            puerta.num.setColor('#000000');
+            puerta.iconBox.setFillStyle(0xffffff);
         } else if (estado === 'alerta') {
-            puerta.box.setFillStyle(0xff0000);
-            puerta.num.setColor('#ffffff');
+            puerta.iconBox.setFillStyle(0xffffff);
+            this.startTimerForDoor(index);
         } else if (estado === 'npc') {
-            puerta.box.setFillStyle(0xffff00);
-            puerta.num.setColor('#000000');
+            puerta.iconBox.setFillStyle(0xffffff);
+            this.stopTimerForDoor(index);
         } else if (estado === 'cobrado') {
-            puerta.box.setFillStyle(0x00ff00);
-            puerta.num.setColor('#000000');
             puerta.icon.setTexture('icon_money');
             puerta.icon.setVisible(true);
+            this.stopTimerForDoor(index);
         } else if (estado === 'bomba') {
-            puerta.box.setFillStyle(0xff00ff);
-            puerta.num.setColor('#000000');
             puerta.icon.setTexture('icon_bomb');
             puerta.icon.setVisible(true);
+            this.stopTimerForDoor(index);
         }
+    }
+
+    startTimerForDoor(index) {
+        const puerta = this.puertaIndicators[index];
+        if (!puerta) return;
+
+        if (puerta.timerEvent) {
+            puerta.timerEvent.remove(false);
+        }
+
+        puerta.timerIndex = 0;
+
+        puerta.timerEvent = this.time.addEvent({
+            delay: 400,
+            loop: true,
+            callback: () => {
+                puerta.timerRects.forEach(rect => rect.setFillStyle(0xffff00));
+                if (puerta.timerIndex < puerta.timerRects.length) {
+                    puerta.timerRects[puerta.timerIndex].setFillStyle(0xff0000);
+                    puerta.timerIndex++;
+                } else {
+                    puerta.timerIndex = 0;
+                }
+            }
+        });
+    }
+
+    stopTimerForDoor(index) {
+        const puerta = this.puertaIndicators[index];
+        if (!puerta) return;
+        if (puerta.timerEvent) {
+            puerta.timerEvent.remove(false);
+            puerta.timerEvent = null;
+        }
+        puerta.timerRects.forEach(rect => rect.setFillStyle(0xffff00));
+    }
+
+    updatePuertasVisibles() {
+        if (!this.puertas) return;
+        const cam = this.scene.get('Nivel1')?.cameras.main || this.scene.get('Nivel2')?.cameras.main;
+        if (!cam) return;
+
+        this.puertas.forEach((door, index) => {
+            const puertaHUD = this.puertaIndicators[index];
+            if (!puertaHUD) return;
+            const visible = door.x >= cam.scrollX && door.x < cam.scrollX + cam.width;
+            puertaHUD.num.setColor(visible ? '#0000ff' : '#ff0000');
+        });
+    }
+
+    setPuertas(puertas) {
+        this.puertas = puertas;
     }
 }

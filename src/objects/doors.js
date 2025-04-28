@@ -15,7 +15,7 @@ export default class Door {
             .setOrigin(0.5)
             .setStrokeStyle(2, 0xffffff);
         this.numberText = scene.add.text(0, -70, (index + 1).toString(), {
-            fontFamily: 'PixelFont',
+            fontFamily: '"Press Start 2P"',
             fontSize: '16px',
             color: '#0000ff'
         }).setOrigin(0.5);
@@ -57,7 +57,7 @@ export default class Door {
     startTimer() {
         if (!this.active) return;
 
-        const duration = Phaser.Math.Between(2000, 5000);
+        const duration = this.scene.scene.key === 'Nivel1' ? Phaser.Math.Between(3000, 6000) : Phaser.Math.Between(1500, 4000);
         this.timer = this.scene.time.delayedCall(duration, () => this.tryToOpen());
     }
 
@@ -85,7 +85,7 @@ export default class Door {
             });
         }
 
-        if (this.scene.updatePuertaHUD && !this.cobrada) {
+        if (this.scene.updatePuertaHUD && !this.cobradoUnaVez) {
             this.scene.updatePuertaHUD(this.index, 'alerta');
         }
     }
@@ -117,7 +117,7 @@ export default class Door {
 
         this.npc = new NPC(this.scene, this.x, this.y, tipo, this, this.scene.player);
 
-        if (this.scene.updatePuertaHUD && !this.cobrada) {
+        if (this.scene.updatePuertaHUD && !this.cobradoUnaVez) {
             this.scene.updatePuertaHUD(this.index, 'npc');
         }
     }
@@ -129,8 +129,8 @@ export default class Door {
     }
 
     cobrar() {
-        if (!this.cobrada) {
-            this.cobrada = true;
+        if (!this.cobradoUnaVez) {
+            this.cobradoUnaVez = true;
             if (this.scene.updatePuertaHUD) {
                 this.scene.updatePuertaHUD(this.index, 'cobrado');
             }
@@ -139,8 +139,8 @@ export default class Door {
     }
 
     setBomba() {
-        if (this.scene.updatePuertaHUD && !this.cobrada) {
-            this.scene.updatePuertaHUD(this.index, 'bomba');
-        }
+       if (this.scene.updatePuertaHUD && !this.cobradoUnaVez) {
+    this.scene.updatePuertaHUD(this.index, 'bomba');
+}
     }
 }
